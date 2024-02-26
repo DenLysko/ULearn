@@ -7,8 +7,11 @@ namespace Recognizer;
 
 internal static class MedianFilterTask
 {
+	// По-хорошему, здесь необходимо создавать объект другого класса,
+	// но необходимо скинуть только содержимое этого класса, поэтому static
 	private static int _width;
 	private static int _height;
+
 	/* 
 	 * Для борьбы с пиксельным шумом, подобным тому, что на изображении,
 	 * обычно применяют медианный фильтр, в котором цвет каждого пикселя, 
@@ -18,6 +21,7 @@ internal static class MedianFilterTask
 	 * Используйте окно размером 3х3 для не граничных пикселей,
 	 * Окно размером 2х2 для угловых и 3х2 или 2х3 для граничных.
 	 */
+
 	public static double[,] MedianFilter(double[,] original)
 	{
         _width = original.GetLength(0);
@@ -28,7 +32,7 @@ internal static class MedianFilterTask
 		for (var i = 0; i < _width; i++)
 			for (var j = 0; j < _height; j++)
 				result[i, j] = CalculateMedianValue(i, j, original);
-		return original;
+		return result;
 	}
 
 	private static double CalculateMedianValue(int i, int j, double[,] original) 
@@ -38,9 +42,26 @@ internal static class MedianFilterTask
 
 		if (_width == 1 && _height == 1)
 			return original[0, 0];
+		else if (_width == 1)
+		{
+			if (j == 0)
+				return (original[0, j] + original[0, j + 1]) / 2;
+			else if (j == _height - 1)
+				return (original[0, j] + original[0, j - 1]) / 2;
+			else
+				return (original[0, j - 1] + original[0, j] + original[0, j + 1]) / 3;
+		}
+        else if (_height == 1)
+        {
+            if (i == 0)
+                return (original[i, 0] + original[i + 1, 0]) / 2;
+            else if (i == _width - 1)
+                return (original[i - 1, 0] + original[i, 0]) / 2;
+            else
+                return (original[i - 1, 0] + original[i, 0] + original[i + 1, 0]) / 3;
+        }
 
-		// Придётся рассмотреть картинки размером 1x2 и 2x1)))
-        if (IsCorner(i, j))
+		if (IsCorner(i, j))
         {
 			if (i == 0 && j == 0)
 				return GetMedianValue(original[i, j], original[i, j + 1], original[i + 1, j], original[i + 1, j + 1]);
@@ -95,12 +116,11 @@ internal static class MedianFilterTask
 		if (length == 0)
 			throw new Exception();
 
+	    Array.Sort(values);
+		
 		if (length % 2 == 0)
-		{
-	        Array.Sort(values);
 			return (values[length / 2 - 1] + values[length / 2]) / 2;
-		}
-		return values.Sum() / length;
+		return values[(length - 1) / 2];
 	}
 
 	private static bool IsCorner(int i, int j) 
