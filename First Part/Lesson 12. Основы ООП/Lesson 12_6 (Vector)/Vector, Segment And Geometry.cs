@@ -1,4 +1,8 @@
-﻿namespace Geometry;
+﻿using System;
+using System.Drawing;
+using Color = Avalonia.Media.Color;
+
+namespace GeometryTasks;
 
 public class Vector
 {
@@ -19,11 +23,14 @@ public class Segment
 {
     public Vector Begin;
     public Vector End;
+    public Color Color;
 
     public double GetLength() => Geometry.GetLength(this);
 
     public bool Contains(Vector vector) => 
         Geometry.IsVectorInSegment(vector, this);
+
+
 }
 
 public class Geometry
